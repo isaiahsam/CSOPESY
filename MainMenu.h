@@ -15,4 +15,6 @@ public:
     void processCommand(const std::string &command);
 
     bool screenExists(const std::string &name);
+
+    void startMarquee(); // New marquee function
 };
