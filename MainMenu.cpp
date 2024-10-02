@@ -1,11 +1,10 @@
 #include <iostream>
 #include <sstream>
-#include <conio.h> // For _kbhit
-
+#include <conio.h> 
 #ifdef _WIN32
-    #include <windows.h> // For Sleep on Windows
+    #include <windows.h> 
 #else
-    #include <unistd.h>  // For usleep on Unix-like systems
+    #include <unistd.h>  
 #endif
 
 #include "MainMenu.h"
@@ -97,15 +96,14 @@ X8888 X8888  88888   "*8%-    us888u.  ="8888f8888r  .zWF8888bx ~"8888 ^8888    
                                                            '8                                         
                                                             `)";
 
-    std::string borderTopBottom = "+------------------------------------------------------------+";
-    std::string borderSide = "|                                                              |";
+   std::string borderTopBottom = "+------------------------------------------------------------------------------------------------------------------------+";
+    std::string borderSide = "|                                                                                                                            |";
 
-    // para sa height tangina hirap isakto
-    int consoleWidth = 60; 
+    int consoleWidth = 120; 
     int consoleHeight = 20; 
 
     int x = 1, y = 2;  
-    int dx = 1, dy = 1; 
+    int dx = 2, dy = 1; 
     std::string marqueeText = "CSOPESY";
     int textLength = marqueeText.length();
 
@@ -142,9 +140,9 @@ X8888 X8888  88888   "*8%-    us888u.  ="8888f8888r  .zWF8888bx ~"8888 ^8888    
 
 
 #ifdef _WIN32
-        Sleep(30); 
+        Sleep(15); // Decreased sleep duration for faster refresh rate
 #else
-        usleep(30000); 
+        usleep(15000); // Decreased sleep duration for Unix-like systems
 #endif
 
         if (_kbhit()) { 
