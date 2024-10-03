@@ -80,18 +80,17 @@ bool MainMenu::screenExists(const std::string &name)
 
 void MainMenu::displayNvidiaSmi()
 {
-    // Get the current system time
+
     time_t now = time(0);
     tm *ltm = localtime(&now);
     
-    // Format and display the current date and time
     std::cout << "Fri " 
-              << 1900 + ltm->tm_year << "-"  // Display the year (tm_year gives years since 1900)
-              << 1 + ltm->tm_mon << "-"     // Display the month (tm_mon is 0-based, so add 1)
-              << ltm->tm_mday << " "        // Display the day of the month
-              << 1 + ltm->tm_hour << ":"    // Display the hour (tm_hour is 0-based)
-              << 1 + ltm->tm_min << ":"     // Display the minute
-              << 1 + ltm->tm_sec            // Display the second
+              << 1900 + ltm->tm_year << "-"  
+              << 1 + ltm->tm_mon << "-"    
+              << ltm->tm_mday << " "        
+              << 1 + ltm->tm_hour << ":"
+              << 1 + ltm->tm_min << ":"    
+              << 1 + ltm->tm_sec         
               << "\n";
 
     std::cout << "+-----------------------------------------------------------------------------+\n";
