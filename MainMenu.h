@@ -16,5 +16,7 @@ public:
 
     bool screenExists(const std::string &name);
 
-    void startMarquee(); // New marquee function
+    void startMarquee();
+
+    void displayNvidiaSmi();
 };

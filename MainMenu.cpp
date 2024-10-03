@@ -9,6 +9,7 @@
 
 #include "MainMenu.h"
 #include "ScreenLayout.h"
+#include <ctime>
 
 void MainMenu::displayMainMenu()
 {
@@ -48,6 +49,7 @@ void MainMenu::displayMainMenu()
     std::cout << "  'scheduler-test' - Test the scheduler\n";
     std::cout << "  'scheduler-stop' - Stop the scheduler\n";
     std::cout << "  'report-util'    - Run report utility\n";
+    std::cout << "  'nvidia-smi'     - Display Nvidia SMI\n";
     std::cout << "  'marquee'        - Start the marquee application\n";
     std::cout << "  'clear'          - Clear the screen\n";
     std::cout << "  'exit'           - Exit the application\n";
@@ -74,6 +76,49 @@ bool MainMenu::screenExists(const std::string &name)
             return true;
     }
     return false;
+}
+
+void MainMenu::displayNvidiaSmi()
+{
+    // Get the current system time
+    time_t now = time(0);
+    tm *ltm = localtime(&now);
+    
+    // Format and display the current date and time
+    std::cout << "Fri " 
+              << 1900 + ltm->tm_year << "-"  // Display the year (tm_year gives years since 1900)
+              << 1 + ltm->tm_mon << "-"     // Display the month (tm_mon is 0-based, so add 1)
+              << ltm->tm_mday << " "        // Display the day of the month
+              << 1 + ltm->tm_hour << ":"    // Display the hour (tm_hour is 0-based)
+              << 1 + ltm->tm_min << ":"     // Display the minute
+              << 1 + ltm->tm_sec            // Display the second
+              << "\n";
+
+    std::cout << "+-----------------------------------------------------------------------------+\n";
+    std::cout << "| NVIDIA-SMI 461.79       Driver Version: 461.79       CUDA Version: 11.2     |\n";
+    std::cout << "|-------------------------------+----------------------+----------------------|\n";
+    std::cout << "| GPU  Name            TCC/WDDM | Bus-Id        Disp.A | Volatile Uncorr. ECC |\n";
+    std::cout << "| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |\n";
+    std::cout << "|                               |                      |               MIG M. |\n";
+    std::cout << "|===============================+======================+======================|\n";
+    std::cout << "|   0  GeForce RTX 307... WDDM  | 00000000:01:00.0 Off |                  N/A |\n";
+    std::cout << "| N/A   67C    P0    22W /  N/A |    637MiB /  8192MiB |     16%      Default |\n";
+    std::cout << "|                               |                      |                  N/A |\n";
+    std::cout << "+-------------------------------+----------------------+----------------------+\n";
+    std::cout << "\n";
+    std::cout << "+-----------------------------------------------------------------------------+\n";
+    std::cout << "| Processes:                                                                  |\n";
+    std::cout << "|  GPU   GI   CI        PID   Type   Process name                  GPU Memory |\n";
+    std::cout << "|        ID   ID                                                   Usage      |\n";
+    std::cout << "|=============================================================================|\n";
+    std::cout << "|    0   N/A  N/A      2184    C+G   Insufficient Permissions        N/A      |\n";
+    std::cout << "|    0   N/A  N/A      3232    C+G   ...icrosoft VS Code\\Code.exe    N/A      |\n";
+    std::cout << "|    0   N/A  N/A      7264    C+G   ...2txyewy\\TextInputHost.exe    N/A      |\n";
+    std::cout << "|    0   N/A  N/A      7336    C+G   ...Client\\v1.0.7\\rsAppUI.exe    N/A      |\n";
+    std::cout << "|    0   N/A  N/A      8372    C+G   ...v1g1gvanyjgm\\WhatsApp.exe    N/A      |\n";
+    std::cout << "+-----------------------------------------------------------------------------+\n";
+    
+    std::cout << "\nType 'back' to go back to the main menu: ";
 }
 
 void MainMenu::startMarquee() {
@@ -164,31 +209,37 @@ void MainMenu::processCommand(const std::string &command)
     static bool isScreenLayoutActive = false; // Track if the screen layout is active
 
     std::stringstream ss(command);
-
     std::string cmd, option, screenName;
     ss >> cmd >> option >> screenName;
-
-    // Different conditions for command actions
 
     if (command == "initialize")
     {
         std::cout << "initialize command recognized. Doing something.\n";
     }
-
     else if (cmd == "screen" && option.empty())
     {
         std::cout << "screen command recognized. Doing something.\n";
     }
-
-    else if (command == "marquee") // New command to start marquee
+    else if (command == "nvidia-smi")
     {
-        clearScreen(); // Clear the screen
-        startMarquee(); // Start the marquee
-        clearScreen(); // Clear the screen after exiting marquee
-        displayMainMenu(); // Display the main menu again
-    }
+        clearScreen();             // Clear the screen
+        displayNvidiaSmi();         // Display the dummy NVIDIA SMI output
 
-    // screen -s: creating and loading a screen
+        std::string userInput;
+        std::getline(std::cin, userInput); // Get user input
+
+        if (userInput == "back") {
+            clearScreen(); // Clear the screen
+            displayMainMenu(); // Display the main menu
+        }
+    }
+    else if (command == "marquee") 
+    {
+        clearScreen(); 
+        startMarquee(); 
+        clearScreen(); 
+        displayMainMenu(); 
+    }
     else if (cmd == "screen" && option == "-s")
     {
         if (screenName.empty())
@@ -208,18 +259,17 @@ void MainMenu::processCommand(const std::string &command)
                 screenLayout.displayScreenLayout(screenName); // Display the new screen
                 isScreenLayoutActive = true;
 
-                // Handle input for the screen layout
                 std::string screenCommand;
                 while (isScreenLayoutActive)
                 {
-                    std::cout << "root:\\> "; // Change prompt for screen layout
+                    std::cout << "root:\\> "; 
                     std::getline(std::cin, screenCommand);
 
                     if (screenCommand == "exit")
                     {
-                        isScreenLayoutActive = false; // Return to main menu
-                        clearScreen();                // Clear the screen for the main menu
-                        displayMainMenu();            // Display the main menu again
+                        isScreenLayoutActive = false; 
+                        clearScreen();  
+                        displayMainMenu(); 
                     }
                     else
                     {
@@ -241,23 +291,22 @@ void MainMenu::processCommand(const std::string &command)
         }
         else
         {
-            clearScreen();                                // Clear the main menu console
-            screenLayout.displayScreenLayout(screenName); // Re-draw the screen that was created
+            clearScreen();                                
+            screenLayout.displayScreenLayout(screenName);
 
             isScreenLayoutActive = true;
 
-            // Handle input for the screen layout
             std::string screenCommand;
             while (isScreenLayoutActive)
             {
-                std::cout << "root:\\> "; // Change prompt for screen layout
+                std::cout << "root:\\> "; 
                 std::getline(std::cin, screenCommand);
 
                 if (screenCommand == "exit")
                 {
-                    isScreenLayoutActive = false; // Return to main menu
-                    clearScreen();                // Clear the screen for the main menu
-                    displayMainMenu();            // Display the main menu again
+                    isScreenLayoutActive = false; 
+                    clearScreen();  
+                    displayMainMenu(); 
                 }
                 else
                 {
@@ -266,7 +315,6 @@ void MainMenu::processCommand(const std::string &command)
             }
         }
     }
-
     else if (command == "scheduler-test")
     {
         std::cout << "scheduler-test command recognized. Doing something.\n";
@@ -281,8 +329,8 @@ void MainMenu::processCommand(const std::string &command)
     }
     else if (command == "clear")
     {
-        clearScreen();     // Clear the screen
-        displayMainMenu(); // Display the main menu again after clearing
+        clearScreen(); 
+        displayMainMenu(); 
     }
     else if (command == "exit")
     {
