@@ -10,6 +10,7 @@
 #include "MainMenu.h"
 #include "ScreenLayout.h"
 #include <ctime>
+#include <iomanip>
 
 void MainMenu::displayMainMenu()
 {
@@ -78,21 +79,44 @@ bool MainMenu::screenExists(const std::string &name)
     return false;
 }
 
+void wrapAndPrint(const std::string& text, int lineWidth) {
+    std::istringstream words(text);
+    std::string word;
+    std::string line;
+    
+    while (words >> word) {
+        if (line.length() + word.length() + 1 > lineWidth) {
+            std::cout << line << "\n"; 
+            line = word; 
+        } else {
+            if (!line.empty()) {
+                line += " "; 
+            }
+            line += word; 
+        }
+    }
+    if (!line.empty()) {
+        std::cout << line << "\n"; 
+    }
+}
+
 void MainMenu::displayNvidiaSmi()
 {
-
+    // Get the current time
     time_t now = time(0);
     tm *ltm = localtime(&now);
-    
-    std::cout << "Fri " 
-              << 1900 + ltm->tm_year << "-"  
-              << 1 + ltm->tm_mon << "-"    
-              << ltm->tm_mday << " "        
-              << 1 + ltm->tm_hour << ":"
-              << 1 + ltm->tm_min << ":"    
-              << 1 + ltm->tm_sec         
+
+    // Format the date and time properly
+    std::cout << "Fri "
+              << 1900 + ltm->tm_year << "-"
+              << std::setw(2) << std::setfill('0') << (1 + ltm->tm_mon) << "-"
+              << std::setw(2) << std::setfill('0') << ltm->tm_mday << " "
+              << std::setw(2) << std::setfill('0') << (0 + ltm->tm_hour) << ":"
+              << std::setw(2) << std::setfill('0') << (0 + ltm->tm_min) << ":"
+              << std::setw(2) << std::setfill('0') << (0 + ltm->tm_sec)
               << "\n";
 
+    // Display the Nvidia SMI output with proper formatting
     std::cout << "+-----------------------------------------------------------------------------+\n";
     std::cout << "| NVIDIA-SMI 461.79       Driver Version: 461.79       CUDA Version: 11.2     |\n";
     std::cout << "|-------------------------------+----------------------+----------------------|\n";
@@ -100,7 +124,7 @@ void MainMenu::displayNvidiaSmi()
     std::cout << "| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |\n";
     std::cout << "|                               |                      |               MIG M. |\n";
     std::cout << "|===============================+======================+======================|\n";
-    std::cout << "|   0  GeForce RTX 307... WDDM  | 00000000:01:00.0 Off |                  N/A |\n";
+    std::cout << "|   0  GeForce RTX 3070    WDDM | 00000000:01:00.0 Off |                  N/A |\n";
     std::cout << "| N/A   67C    P0    22W /  N/A |    637MiB /  8192MiB |     16%      Default |\n";
     std::cout << "|                               |                      |                  N/A |\n";
     std::cout << "+-------------------------------+----------------------+----------------------+\n";
@@ -116,7 +140,7 @@ void MainMenu::displayNvidiaSmi()
     std::cout << "|    0   N/A  N/A      7336    C+G   ...Client\\v1.0.7\\rsAppUI.exe    N/A      |\n";
     std::cout << "|    0   N/A  N/A      8372    C+G   ...v1g1gvanyjgm\\WhatsApp.exe    N/A      |\n";
     std::cout << "+-----------------------------------------------------------------------------+\n";
-    
+
     std::cout << "\nType 'back' to go back to the main menu: ";
 }
 
@@ -221,15 +245,15 @@ void MainMenu::processCommand(const std::string &command)
     }
     else if (command == "nvidia-smi")
     {
-        clearScreen();             // Clear the screen
-        displayNvidiaSmi();         // Display the dummy NVIDIA SMI output
+        clearScreen();         
+        displayNvidiaSmi();        
 
         std::string userInput;
-        std::getline(std::cin, userInput); // Get user input
+        std::getline(std::cin, userInput); 
 
         if (userInput == "back") {
-            clearScreen(); // Clear the screen
-            displayMainMenu(); // Display the main menu
+            clearScreen(); 
+            displayMainMenu(); 
         }
     }
     else if (command == "marquee") 
