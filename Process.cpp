@@ -1,4 +1,5 @@
 #include "Process.h"
+#include <iomanip>
 
 Process::Process(int id, int numPrints, const std::string& printString)
     : id(id), numPrints(numPrints), printCount(0), printString(printString) {
