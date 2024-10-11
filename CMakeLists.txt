@@ -7,4 +7,5 @@ add_executable(testCase
         Process.h
         Process.cpp
         Scheduler.h
-        Scheduler.cpp)
+        Scheduler.cpp
+        Main.cpp)
