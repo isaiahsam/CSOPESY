@@ -1,20 +1,24 @@
 #include <iostream>
 #include <sstream>
-#include <conio.h> 
 #ifdef _WIN32
-    #include <windows.h> 
+#include <conio.h>
+#else
+#include <termios.h>
+#endif
+#ifdef _WIN32
+    #include <windows.h>
 #else
     #include <unistd.h>  
 #endif
 
 #include "MainMenu.h"
 #include "ScreenCommand.h"
-#include "MarqueeCommand.h"
-#include "NvidiaCommand.h"
-#include "SchedulerCommand.h"
+
 #include "ReportCommand.h"
 #include <ctime>
 #include <iomanip>
+#include "Config.h"
+#include "Scheduler.h"
 
 // to see if my pookie bear is initialized
 bool isInitialized = false;
@@ -61,29 +65,35 @@ void MainMenu::processCommand(const std::string &command) {
     std::string cmd, option, screenName;
     ss >> cmd >> option >> screenName;
 
-     if (!isInitialized && command != "initialize" && command != "exit") {
+    static Scheduler* scheduler = nullptr;
+
+    if (!isInitialized && command != "initialize" && command != "exit") {
         std::cout << "Initialize First.\n";
-        isInitialized = true;
         return;
     }
 
     if (command == "initialize") {
-        std::cout << "initialize command recognized. Doing something.\n";
+        Config loadedConfig("config.txt");
+        loadedConfig.loadConfig();
+        scheduler = new Scheduler(loadedConfig);
+        isInitialized = true;
+        std::cout << "Initialized using config.txt\n";
+        scheduler->displayConfig();
     } else if (cmd == "screen") {
         ScreenCommand screenCommand;
         screenCommand.processScreenCommand(option, screenName);
-    } else if (command == "nvidia-smi") {
-        clearScreen();
-        NvidiaCommand nvidiaCommand;
-        nvidiaCommand.displayNvidiaSmi();
-        clearScreen();         
-        displayMainMenu();
-    } else if (command == "marquee") {
-        MarqueeCommand marqueeCommand;
-        marqueeCommand.startMarquee();
-    } else if (command == "scheduler-test" || command == "scheduler-stop") {
-        SchedulerCommand schedulerCommand;
-        schedulerCommand.processSchedulerCommand(cmd);
+    } else if (command == "scheduler-test") {
+        if (scheduler) {
+            scheduler->startSchedulerTest();
+        } else {
+            std::cout << "Scheduler not initialized.\n";
+        }
+    } else if (command == "scheduler-stop") {
+        if (scheduler) {
+            scheduler->stopSchedulerTest();
+        } else {
+            std::cout << "Scheduler not initialized.\n";
+        }
     } else if (command == "report-util") {
         ReportCommand reportCommand;
         reportCommand.runReportUtil();
@@ -92,6 +102,9 @@ void MainMenu::processCommand(const std::string &command) {
         displayMainMenu();
     } else if (command == "exit") {
         std::cout << "Exiting the application.\n";
+        if (scheduler) {
+            delete scheduler;
+        }
         exit(0);
     } else {
         std::cout << "Unknown command. Try again.\n";

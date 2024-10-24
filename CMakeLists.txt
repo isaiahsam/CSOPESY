@@ -4,4 +4,10 @@ project(testCase)
 set(CMAKE_CXX_STANDARD 20)
 file(GLOB SOURCES "*.cpp" "*.h")
 
-add_executable(testCase ${SOURCES})
+add_executable(testCase ${SOURCES}
+        Config.h
+        Config.cpp
+        Scheduler.h
+        Scheduler.cpp
+        Process.h
+        Process.cpp)
