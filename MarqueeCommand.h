@@ -1,5 +1,7 @@
-#ifndef MARQUEE_COMMAND_H
-#define MARQUEE_COMMAND_H
+#ifndef MARQUEECOMMAND_H
+#define MARQUEECOMMAND_H
+
+#include <string>
 
 class MarqueeCommand {
 public:
