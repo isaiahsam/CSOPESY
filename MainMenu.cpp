@@ -16,8 +16,10 @@
 #include <ctime>
 #include <iomanip>
 
+// to see if my pookie bear is initialized
+bool isInitialized = false;
+
 void MainMenu::displayMainMenu() {
-    // Display the banner and menu options
         std::cout << R"(  
                                _____  _____  ____  _____  ______  _______     __
                               / ____|/ ____|/ __ \|  __ \|  ____|/ ____\ \   / /
@@ -59,14 +61,23 @@ void MainMenu::processCommand(const std::string &command) {
     std::string cmd, option, screenName;
     ss >> cmd >> option >> screenName;
 
+     if (!isInitialized && command != "initialize" && command != "exit") {
+        std::cout << "Initialize First.\n";
+        isInitialized = true;
+        return;
+    }
+
     if (command == "initialize") {
         std::cout << "initialize command recognized. Doing something.\n";
     } else if (cmd == "screen") {
         ScreenCommand screenCommand;
         screenCommand.processScreenCommand(option, screenName);
     } else if (command == "nvidia-smi") {
+        clearScreen();
         NvidiaCommand nvidiaCommand;
         nvidiaCommand.displayNvidiaSmi();
+        clearScreen();         
+        displayMainMenu();
     } else if (command == "marquee") {
         MarqueeCommand marqueeCommand;
         marqueeCommand.startMarquee();

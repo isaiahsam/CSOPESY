@@ -1,27 +1,21 @@
 #include "MarqueeCommand.h"
 #include <iostream>
-#include <conio.h>  // For _kbhit and _getch
-
-#ifdef _WIN32
-    #include <windows.h>  // For Sleep
-#else
-    #include <unistd.h>   // For usleep
-#endif
+#include <pthread.h>
+#include <unistd.h>   // For usleep
 #include <string>
 
-void MarqueeCommand::startMarquee() {
+bool running = true; // Control flag for the marquee loop
+
+void* marqueeTask(void*) {
     // Marquee text
     std::string marqueeText = "CSOPESY";
     int consoleWidth = 120;
     int consoleHeight = 20;
-    int x = 2, y = 2, dx = 2, dy = 1;
-    
-    std::string inputBuffer;  // Buffer to collect user input
+    int x = 2;
 
-    clearScreen();  // Ensure screen is cleared before starting
-
-    while (true) {
-        clearScreen();
+    while (running) {
+        // Clear screen
+        system("clear"); // For Unix-based systems
 
         // Top border
         std::cout << "+" << std::string(consoleWidth - 2, '-') << "+\n";
@@ -30,7 +24,7 @@ void MarqueeCommand::startMarquee() {
         for (int i = 0; i < consoleHeight - 2; i++) {
             std::cout << "|";  // Left border
             for (int j = 0; j < consoleWidth - 2; j++) {
-                if (i == y && j == x) {
+                if (i == 2 && j == x) {
                     std::cout << marqueeText;
                     j += marqueeText.size() - 1;  // Move cursor forward to avoid overwriting text
                 } else {
@@ -42,54 +36,57 @@ void MarqueeCommand::startMarquee() {
 
         // Bottom border
         std::cout << "+" << std::string(consoleWidth - 2, '-') << "+\n";
+        std::cout << "Press Enter to go back to the main screen\n";
 
         // Move the marquee text
-        x += dx;
-        y += dy;
+        x++;
+        if (x >= consoleWidth - marqueeText.size() - 2) {
+            x = 2; // Reset position
+        }
 
-        // Boundary checking for the marquee text
-        if (x <= 1 || x >= consoleWidth - marqueeText.size() - 3) dx = -dx;
-        if (y <= 1 || y >= consoleHeight - 3) dy = -dy;
+        usleep(150000); // Delay for Unix-based systems
+    }
+    return nullptr;
+}
 
-#ifdef _WIN32
-        Sleep(15);  // Delay for Windows
-#else
-        usleep(15000);  // Delay for Unix-based systems
-#endif
+void* inputTask(void*) {
+    std::string inputBuffer;
 
-        // Check for input without waiting for Enter
-        if (_kbhit()) {  // If a key is pressed
-            char ch = _getch();  // Get the character
-
-            // Handle input: append the character to inputBuffer and check for "back"
-            if (ch == '\r') {  // If Enter is pressed, ignore it
-                continue;
-            } else if (ch == '\b') {  // Handle backspace
-                if (!inputBuffer.empty()) {
-                    inputBuffer.pop_back();
-                }
-            } else {
-                inputBuffer += ch;  // Add the character to the buffer
+    while (running) {
+        char ch = std::cin.get();
+        
+        if (ch == '\n') {
+            running = false; // Stop the marquee when Enter is pressed
+        } else if (ch == '\b') {  // Handle backspace
+            if (!inputBuffer.empty()) {
+                inputBuffer.pop_back();
             }
+        } else {
+            inputBuffer += ch;  // Add the character to the buffer
+        }
 
-            // Check if the user has entered "back"
-            if (inputBuffer == "back") {
-                clearScreen();  // Clear the screen
-                return;  // Exit and go back to the main menu
-            }
-
-            // Reset the buffer if the input exceeds the size of "back" and doesn't match
-            if (inputBuffer.size() > 4) {
-                inputBuffer.clear();  // Clear buffer if incorrect command is entered
-            }
+        // Check if the user has entered "back"
+        if (inputBuffer == "back") {
+            running = false; // Stop the marquee if "back" is entered
         }
     }
+    return nullptr;
+}
+
+void MarqueeCommand::startMarquee() {
+    pthread_t marqueeThread, inputThread;
+
+    // Create threads for marquee and input handling
+    pthread_create(&marqueeThread, nullptr, marqueeTask, nullptr);
+    pthread_create(&inputThread, nullptr, inputTask, nullptr);
+
+    // Wait for both threads to finish
+    pthread_join(inputThread, nullptr);
+    pthread_join(marqueeThread, nullptr);
+
+    clearScreen(); // Clear the screen before returning to the main menu
 }
 
 void MarqueeCommand::clearScreen() {
-#ifdef _WIN32
-    system("cls");  // Clear screen for Windows
-#else
     system("clear");  // Clear screen for Unix-based systems
-#endif
 }

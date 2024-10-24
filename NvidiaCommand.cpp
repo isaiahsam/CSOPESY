@@ -2,6 +2,7 @@
 #include <iostream>
 #include <ctime>
 #include <iomanip>
+#include <limits>
 
 void NvidiaCommand::displayNvidiaSmi() {
     // Display Nvidia SMI output
@@ -38,5 +39,7 @@ void NvidiaCommand::displayNvidiaSmi() {
     std::cout << "|    0   N/A  N/A      8372    C+G   ...v1g1gvanyjgm\\WhatsApp.exe    N/A      |\n";
     std::cout << "+-----------------------------------------------------------------------------+\n";
 
-    std::cout << "\nType 'back' to go back to the main menu: ";
+    // Wait for user to press Enter
+    std::cout << "Press Enter to return to the main menu...";
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Wait for Enter
 }
