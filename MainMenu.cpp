@@ -19,6 +19,7 @@
 #include <iomanip>
 #include "Config.h"
 #include "Scheduler.h"
+#include "MarqueeCommand.h"
 
 // to see if my pookie bear is initialized
 bool isInitialized = false;
@@ -72,7 +73,7 @@ void MainMenu::processCommand(const std::string &command) {
         return;
     }
 
-    if (command == "initialize") {
+     if (command == "initialize") {
         Config loadedConfig("config.txt");
         loadedConfig.loadConfig();
         scheduler = new Scheduler(loadedConfig);
@@ -100,6 +101,10 @@ void MainMenu::processCommand(const std::string &command) {
     } else if (command == "clear") {
         clearScreen();
         displayMainMenu();
+    } else if (command == "marquee") {
+    MarqueeCommand marquee;
+    clearScreen();
+    marquee.startMarquee(); 
     } else if (command == "exit") {
         std::cout << "Exiting the application.\n";
         if (scheduler) {
