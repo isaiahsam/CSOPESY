@@ -3,19 +3,23 @@
 
 #include <string>
 #include <vector>
-#include <algorithm> // Include this for std::find
+#include <algorithm>
+#include <iostream>
 
 class ScreenCommand {
 private:
-    std::vector<std::string> screens;
+    static std::vector<std::string> screens; // Stores all screen names globally
 
-    bool screenExists(const std::string &screenName) {
+    // Check if the screen already exists
+    bool screenExists(const std::string &screenName) const {
         return std::find(screens.begin(), screens.end(), screenName) != screens.end();
     }
 
 public:
     void processScreenCommand(const std::string &option, const std::string &screenName);
     void handleScreenCommands();
+    void listScreens(); // For screen -ls command
+    void retrieveScreen(const std::string &screenName); // For screen -r command
 };
 
 #endif

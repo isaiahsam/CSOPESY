@@ -73,7 +73,7 @@ void MainMenu::processCommand(const std::string &command) {
         return;
     }
 
-     if (command == "initialize") {
+    if (command == "initialize") {
         Config loadedConfig("config.txt");
         loadedConfig.loadConfig();
         scheduler = new Scheduler(loadedConfig);
@@ -82,7 +82,11 @@ void MainMenu::processCommand(const std::string &command) {
         scheduler->displayConfig();
     } else if (cmd == "screen") {
         ScreenCommand screenCommand;
-        screenCommand.processScreenCommand(option, screenName);
+        if (option == "-ls") {
+            screenCommand.listScreens();
+        } else {
+            screenCommand.processScreenCommand(option, screenName);
+        }
     } else if (command == "scheduler-test") {
         if (scheduler) {
             scheduler->startSchedulerTest();
@@ -102,9 +106,9 @@ void MainMenu::processCommand(const std::string &command) {
         clearScreen();
         displayMainMenu();
     } else if (command == "marquee") {
-    MarqueeCommand marquee;
-    clearScreen();
-    marquee.startMarquee(); 
+        MarqueeCommand marquee;
+        clearScreen();
+        marquee.startMarquee(); 
     } else if (command == "exit") {
         std::cout << "Exiting the application.\n";
         if (scheduler) {
@@ -115,3 +119,4 @@ void MainMenu::processCommand(const std::string &command) {
         std::cout << "Unknown command. Try again.\n";
     }
 }
+
