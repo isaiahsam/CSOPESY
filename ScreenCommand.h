@@ -8,9 +8,8 @@
 
 class ScreenCommand {
 private:
-    static std::vector<std::string> screens; // Stores all screen names globally
+    static std::vector<std::string> screens; // Stores all screen names globally bc im out of fucking options what the fuck pookie bear
 
-    // Check if the screen already exists
     bool screenExists(const std::string &screenName) const {
         return std::find(screens.begin(), screens.end(), screenName) != screens.end();
     }
@@ -18,8 +17,8 @@ private:
 public:
     void processScreenCommand(const std::string &option, const std::string &screenName);
     void handleScreenCommands();
-    void listScreens(); // For screen -ls command
-    void retrieveScreen(const std::string &screenName); // For screen -r command
+    void listScreens(); // -ls command
+    void retrieveScreen(const std::string &screenName); // -r command
 };
 
 #endif

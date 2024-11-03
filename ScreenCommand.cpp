@@ -1,8 +1,8 @@
 #include "ScreenCommand.h"
 #include "ScreenLayout.h"
 #include <iostream>
+#include <sstream>
 
-// Define the static screens vector
 std::vector<std::string> ScreenCommand::screens;
 
 void ScreenCommand::processScreenCommand(const std::string &option, const std::string &screenName) {
@@ -13,7 +13,7 @@ void ScreenCommand::processScreenCommand(const std::string &option, const std::s
             if (screenExists(screenName)) {
                 std::cout << "The screen '" << screenName << "' already exists.\n";
             } else {
-                screens.push_back(screenName); // Add screen to the stored list
+                screens.push_back(screenName);
                 ScreenLayout screenLayout;
                 screenLayout.displayScreenLayout(screenName);
                 handleScreenCommands();
@@ -36,7 +36,30 @@ void ScreenCommand::handleScreenCommands() {
         std::cout << "root:\\> ";
         std::getline(std::cin, screenCommand);
 
-        if (screenCommand == "exit") {
+        std::istringstream iss(screenCommand);
+        std::string command;
+        std::string option;
+        iss >> command; 
+        if (iss) iss >> option; 
+        
+        std::string argument;
+        if (option == "-r") {
+            if (iss) iss >> argument; 
+        }
+
+        if (command == "screen") {
+            if (option == "-ls") {
+                listScreens();
+            } else if (option == "-r") {
+                if (argument.empty()) {
+                    std::cout << "Please provide a screen name after '-r'.\n";
+                } else {
+                    retrieveScreen(argument);
+                }
+            } else {
+                std::cout << "\nUnknown screen command option.\n";
+            }
+        } else if (command == "exit") {
             isScreenLayoutActive = false;
         } else {
             std::cout << "\nUnknown command input. Try again.\n\n";
@@ -44,7 +67,7 @@ void ScreenCommand::handleScreenCommands() {
     }
 }
 
-// Lists all active screens
+
 void ScreenCommand::listScreens() {
     if (screens.empty()) {
         std::cout << "No active screens.\n";
@@ -56,7 +79,6 @@ void ScreenCommand::listScreens() {
     }
 }
 
-// Retrieves a specific screen, if it exists
 void ScreenCommand::retrieveScreen(const std::string &screenName) {
     if (screenExists(screenName)) {
         ScreenLayout screenLayout;
