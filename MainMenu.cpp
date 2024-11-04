@@ -47,7 +47,6 @@ void MainMenu::displayMainMenu() {
     std::cout << "  'scheduler-test' - Test the scheduler\n";
     std::cout << "  'scheduler-stop' - Stop the scheduler\n";
     std::cout << "  'report-util'    - Run report utility\n";
-    std::cout << "  'nvidia-smi'     - Display Nvidia SMI\n";
     std::cout << "  'marquee'        - Start the marquee application\n";
     std::cout << "  'clear'          - Clear the screen\n";
     std::cout << "  'exit'           - Exit the application\n";
