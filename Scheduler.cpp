@@ -99,6 +99,58 @@ void Scheduler::processTasks(int cpuIndex) {
             finishedProcesses.push_back(currentProcess.getName());
         }
     }
+
+    else if (scheduler == "rr") {
+    while (running) {
+        Process currentProcess("", 0, "", 0); 
+        {
+            std::unique_lock<std::mutex> lock(queueMutex);
+            condition.wait(lock, [this] { return !processQueue.empty() || !running; });
+
+            if (!running && processQueue.empty()) {
+                return;
+            }
+
+            
+            currentProcess = processQueue.front();
+            processQueue.pop();
+        }
+
+        cpuStatus[cpuIndex] = currentProcess.getName();
+        currentProcess.setCoreAssigned(cpuIndex);
+        int instructions = currentProcess.getInstructionCount();
+        int executedInstructions = 0;
+        int timeSlice = std::min(instructions, quantumCycles); // Use the lesser of total instructions or quantumCycles
+        
+        // Round Robin scheduling logic
+        for (int i = 0; i < timeSlice; ++i) {
+            if (executedInstructions < instructions) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(globalDelay));
+                currentProcess.setInstructionsExecuted(executedInstructions + 1);
+                executedInstructions++;
+            } else {
+                break; // Exit if process is finished
+            }
+        }
+
+        std::cout << "CPU " << cpuIndex << " processed " << currentProcess.getName() 
+                  << " for " << executedInstructions << " instructions.\n";
+
+       
+        if (executedInstructions < instructions) {
+            currentProcess.setInstructionCount(instructions - executedInstructions);
+            processQueue.push(currentProcess); 
+        } else {
+            finishedProcesses.push_back(currentProcess.getName()); 
+        }
+
+        // Reset CPU status
+        cpuStatus[cpuIndex] = "";
+        currentInstructions[cpuIndex] = 0;
+        totalInstructions[cpuIndex] = 0;
+    }
+}
+
 }
 
 void Scheduler::monitorStatus() {

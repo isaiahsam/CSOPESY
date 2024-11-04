@@ -39,5 +39,8 @@ int Process::getInstructionCount() const {
     return instructionCount;
 }
 
+void Process::setInstructionCount(int c) {
+    this->instructionCount = instructionCount;
+}
 
 

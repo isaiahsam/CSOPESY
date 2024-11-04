@@ -12,6 +12,7 @@ public:
     int getCoreAssigned() const;
     void setCoreAssigned(int coreAssigned) ;
     void setInstructionsExecuted(int instructionsExecuted) ;
+    void setInstructionCount(int instructionCount) ;
 
 
     int getBurstTime() const;
