@@ -5,6 +5,14 @@
 #include <cstdlib>
 #include <ctime>
 
+void clearScreen() {
+#ifdef _WIN32
+    std::system("cls");
+#else
+    std::system("clear");
+#endif
+}
+
 std::map<std::string, ScreenCommand::InstructionData> ScreenCommand::screenData;
 
 bool ScreenCommand::screenExists(const std::string &screenName) const {
@@ -26,6 +34,7 @@ void ScreenCommand::processScreenCommand(const std::string &option, const std::s
             if (screenExists(screenName)) {
                 std::cout << "The screen '" << screenName << "' already exists.\n";
             } else {
+                clearScreen();
                 ScreenLayout screenLayout;
                 screenLayout.displayScreenLayout(screenName);
                 screens.push_back(screenName);
@@ -64,6 +73,7 @@ void ScreenCommand::processSMI() const {
 
 void ScreenCommand::retrieveScreen(const std::string &screenName) {
     if (screenExists(screenName)) {
+        clearScreen();
         ScreenLayout screenLayout;
         screenLayout.displayScreenLayout(screenName);
         activeScreen = screenName;
