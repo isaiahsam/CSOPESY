@@ -1,4 +1,5 @@
 #include "ScreenCommand.h"
+#include "Process.h"
 #include "ScreenLayout.h"
 #include <iostream>
 #include <sstream>
@@ -41,6 +42,9 @@ void ScreenCommand::processScreenCommand(const std::string &option, const std::s
                 screens.push_back(screenName);
 
                 if (scheduler) {
+                    Process newProcess("", 0, "", 0);
+                    scheduler->addProcess(newProcess);
+
                     generateInstructionLines(screenName, scheduler->getMinIns(), scheduler->getMaxIns());
                 } else {
                     std::cout << "Scheduler not initialized.\n";
@@ -91,7 +95,9 @@ void ScreenCommand::listScreens() {
         std::cout << "Active screens:\n";
         for (const auto &screen : screenData) {
             std::cout << "  - " << screen.first << "\n";
+
         }
+        
     }
 
     if (scheduler) {
@@ -104,6 +110,15 @@ void ScreenCommand::listScreens() {
         std::cout << "CPU Utilization: " << cpuUtilization << "%\n";
         std::cout << "Cores used: " << coresUsed << "\n";
         std::cout << "Cores available: " << coresAvailable << "\n";
+
+        // for (const auto &process : scheduler->getAllProcesses()) {
+        //     std::cout << "Process " << process.getName() 
+        //         << "   Core " 
+        //         << process.getCoreAssigned() 
+        //         << process.getInstructionsExecuted() 
+        //         << "/"
+        //         << process.getInstructionCount() << "\n";
+        // }
     } else {
         std::cout << "Scheduler not initialized.\n";
     }
