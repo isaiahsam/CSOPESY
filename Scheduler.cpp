@@ -124,7 +124,7 @@ void Scheduler::displayConfig() const {
 void Scheduler::startSchedulerTest() {
     if (!running) {
         running = true;
-
+        allProcesses.clear();
         // monitorThread = std::thread(&Scheduler::monitorStatus, this);
         schedule();
         schedulerThread = std::thread(&Scheduler::generateDummyProcesses, this);
@@ -159,6 +159,7 @@ void Scheduler::generateDummyProcesses() {
         int instructionCount = rand() % (maxIns - minIns + 1) + minIns;
         Process newProcess(processName, instructionCount, processName, instructionCount);
         addProcess(newProcess);
+        allProcesses.push_back(newProcess);
         std::cout << "Generated process: " << processName << " with instructions:" << newProcess.getInstructionCount()
                 << "\n";
     }
@@ -202,4 +203,8 @@ void Scheduler::printCPUStatus() const {
         std::cout << process << " ";
     }
     std::cout << std::endl;
+}
+
+std::vector<Process> Scheduler::getAllProcesses() const {
+    return allProcesses;
 }

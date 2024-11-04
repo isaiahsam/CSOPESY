@@ -30,6 +30,7 @@ public:
     int getCoresUsed() const;
     int getNumCores() const;
     double getCpuUtilization() const;
+    std::vector<Process> getAllProcesses() const;
 
 
 private:
@@ -41,7 +42,7 @@ private:
     int maxIns;
     int delaysPerExec;
     int globalDelay = (delaysPerExec + 1) * 100;
-
+    std::vector<Process> allProcesses;
     std::queue<Process> processQueue;
     std::vector<std::thread> cpuThreads;
     std::vector<std::string> cpuStatus;
@@ -58,6 +59,7 @@ private:
     void generateDummyProcesses();
     void processTasks(int cpuIndex);
     void monitorStatus();
+
 
     void scheduleFCFS();
     void scheduleRR();

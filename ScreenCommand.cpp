@@ -85,6 +85,7 @@ void ScreenCommand::listScreens() {
 
     if (scheduler) {
         int coresUsed = scheduler->getCoresUsed();
+
         int totalCores = scheduler->getNumCores();
         int coresAvailable = totalCores - coresUsed;
         double cpuUtilization = scheduler->getCpuUtilization();
