@@ -62,7 +62,7 @@ void Scheduler::schedule() {
 
 void Scheduler::processTasks(int cpuIndex) {
     while (running) {
-        Process currentProcess("", 0);
+        Process currentProcess("", 0, "", 0);
         {
             std::unique_lock<std::mutex> lock(queueMutex);
             condition.wait(lock, [this] { return !processQueue.empty() || !running; });
@@ -76,7 +76,8 @@ void Scheduler::processTasks(int cpuIndex) {
         }
 
         cpuStatus[cpuIndex] = currentProcess.getName();
-        int instructions = rand() % (maxIns - minIns + 1) + minIns;
+        currentProcess.setCoreAssigned(cpuIndex);
+        int instructions = currentProcess.getInstructionCount();
         totalInstructions[cpuIndex] = instructions;
         currentInstructions[cpuIndex] = 0;
 
@@ -84,6 +85,7 @@ void Scheduler::processTasks(int cpuIndex) {
             // FCFS scheduling logic
             for (int i = 0; i < instructions; ++i) {
                 currentInstructions[cpuIndex] = i + 1;
+                currentProcess.setInstructionsExecuted(i + 1);
                 std::this_thread::sleep_for(std::chrono::milliseconds(globalDelay));
             }
         } else if (scheduler == "rr") {
@@ -153,7 +155,8 @@ void Scheduler::generateDummyProcesses() {
     while (running) {
         std::this_thread::sleep_for(std::chrono::milliseconds(batchProcessFreq));
         std::string processName = "p" + std::to_string(processCount++);
-        Process newProcess(processName, rand() % (maxIns - minIns + 1) + minIns);
+        int instructionCount = rand() % (maxIns - minIns + 1) + minIns;
+        Process newProcess(processName, instructionCount, processName, instructionCount);
         addProcess(newProcess);
         std::cout << "Generated process: " << processName << "\n";
     }
