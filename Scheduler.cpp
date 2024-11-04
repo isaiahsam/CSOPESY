@@ -16,7 +16,8 @@ Scheduler::Scheduler(const Config &config)
       currentInstructions(numCpu, 0),
       totalInstructions(numCpu, 0),
       schedulerThread(),
-      monitorThread() {}
+      monitorThread() {
+}
 
 Scheduler::~Scheduler() {
     if (running) {
@@ -27,7 +28,7 @@ Scheduler::~Scheduler() {
 //for screen -ls
 int Scheduler::getCoresUsed() const {
     int activeCores = 0;
-    for (const auto &status : cpuStatus) {
+    for (const auto &status: cpuStatus) {
         if (!status.empty()) activeCores++;
     }
     return activeCores;
@@ -47,7 +48,6 @@ double Scheduler::getCpuUtilization() const {
 }
 
 
-
 void Scheduler::addProcess(const Process &process) {
     std::lock_guard<std::mutex> lock(queueMutex);
     processQueue.push(process);
@@ -62,8 +62,7 @@ void Scheduler::schedule() {
 
 void Scheduler::processTasks(int cpuIndex) {
     while (running) {
-        Process currentProcess("", 0, "", 0);
-        {
+        Process currentProcess("", 0, "", 0); {
             std::unique_lock<std::mutex> lock(queueMutex);
             condition.wait(lock, [this] { return !processQueue.empty() || !running; });
 
@@ -92,7 +91,8 @@ void Scheduler::processTasks(int cpuIndex) {
             // RR scheduling logic
         }
 
-        std::cout << "CPU " << cpuIndex << " processed " << currentProcess.getName() << " for " << instructions << " instructions.\n";
+        std::cout << "CPU " << cpuIndex << " processed " << currentProcess.getName() << " for " << instructions <<
+                " instructions.\n";
 
         cpuStatus[cpuIndex] = "";
         currentInstructions[cpuIndex] = 0;
@@ -124,9 +124,10 @@ void Scheduler::displayConfig() const {
 void Scheduler::startSchedulerTest() {
     if (!running) {
         running = true;
-        schedulerThread = std::thread(&Scheduler::generateDummyProcesses, this);
-        monitorThread = std::thread(&Scheduler::monitorStatus, this);
+
+        // monitorThread = std::thread(&Scheduler::monitorStatus, this);
         schedule();
+        schedulerThread = std::thread(&Scheduler::generateDummyProcesses, this);
         std::cout << "Scheduler test started.\n";
     } else {
         std::cout << "Scheduler test is already running.\n";
@@ -135,14 +136,14 @@ void Scheduler::startSchedulerTest() {
 
 void Scheduler::stopSchedulerTest() {
     if (running) {
+        std::cout << "stopping " << std::endl;
         running = false;
-        condition.notify_all();
-        schedulerThread.join();
-        monitorThread.join();
-        for (auto &thread : cpuThreads) {
-            if (thread.joinable()) {
-                thread.join();
-            }
+        if (schedulerThread.joinable()) {
+            std::cout << "Stopping process generator thread\n";
+            schedulerThread.join();
+        }
+        if (monitorThread.joinable()) {
+            monitorThread.join();
         }
         std::cout << "Scheduler test stopped.\n";
     } else {
@@ -158,9 +159,11 @@ void Scheduler::generateDummyProcesses() {
         int instructionCount = rand() % (maxIns - minIns + 1) + minIns;
         Process newProcess(processName, instructionCount, processName, instructionCount);
         addProcess(newProcess);
-        std::cout << "Generated process: " << processName << "\n";
+        std::cout << "Generated process: " << processName << " with instructions:" << newProcess.getInstructionCount()
+                << "\n";
     }
 }
+
 int Scheduler::getBatchProcessFreq() const {
     return batchProcessFreq;
 }
@@ -184,7 +187,6 @@ void Scheduler::printProcessQueue() const {
 }
 
 
-
 void Scheduler::printCPUStatus() const {
     int activeCores = getCoresUsed();
     int totalCores = getNumCores();
@@ -193,10 +195,10 @@ void Scheduler::printCPUStatus() const {
     std::cout << "CPU Utilization: " << cpuUtil << "%" << std::endl;
     for (size_t i = 0; i < cpuStatus.size(); ++i) {
         std::cout << "CPU " << i << ": " << (cpuStatus[i].empty() ? "Idle" : cpuStatus[i])
-                  << " Instructions: " << currentInstructions[i] << "/" << totalInstructions[i] << std::endl;
+                << " Instructions: " << currentInstructions[i] << "/" << totalInstructions[i] << std::endl;
     }
     std::cout << "Finished Processes: ";
-    for (const auto &process : finishedProcesses) {
+    for (const auto &process: finishedProcesses) {
         std::cout << process << " ";
     }
     std::cout << std::endl;
