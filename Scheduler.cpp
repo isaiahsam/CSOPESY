@@ -98,59 +98,48 @@ void Scheduler::processTasks(int cpuIndex) {
 
             finishedProcesses.push_back(currentProcess.getName());
         }
-    }
+    } else if (scheduler == "rr") {
+        while (running) {
+            Process currentProcess("", 0, "", 0); {
+                std::unique_lock<std::mutex> lock(queueMutex);
+                condition.wait(lock, [this] { return !processQueue.empty() || !running; });
 
-    else if (scheduler == "rr") {
-    while (running) {
-        Process currentProcess("", 0, "", 0); 
-        {
-            std::unique_lock<std::mutex> lock(queueMutex);
-            condition.wait(lock, [this] { return !processQueue.empty() || !running; });
+                if (!running && processQueue.empty()) {
+                    return;
+                }
 
-            if (!running && processQueue.empty()) {
-                return;
+                currentProcess = processQueue.front();
+                processQueue.pop();
             }
 
-            
-            currentProcess = processQueue.front();
-            processQueue.pop();
-        }
+            cpuStatus[cpuIndex] = currentProcess.getName();
+            currentProcess.setCoreAssigned(cpuIndex);
+            int instructionsLeft = currentProcess.getInstructionCount() - currentProcess.getInstructionsExecuted();
+            totalInstructions[cpuIndex] = currentProcess.getInstructionCount();
+            currentInstructions[cpuIndex] = currentProcess.getInstructionsExecuted();
 
-        cpuStatus[cpuIndex] = currentProcess.getName();
-        currentProcess.setCoreAssigned(cpuIndex);
-        int instructions = currentProcess.getInstructionCount();
-        int executedInstructions = 0;
-        int timeSlice = std::min(instructions, quantumCycles); // Use the lesser of total instructions or quantumCycles
-        
-        // Round Robin scheduling logic
-        for (int i = 0; i < timeSlice; ++i) {
-            if (executedInstructions < instructions) {
+            // RR scheduling logic
+            int cycles = std::min(quantumCycles, instructionsLeft);
+            for (int i = 0; i < cycles; ++i) {
+                currentInstructions[cpuIndex]++;
+                currentProcess.setInstructionsExecuted(currentProcess.getInstructionsExecuted() + 1);
                 std::this_thread::sleep_for(std::chrono::milliseconds(globalDelay));
-                currentProcess.setInstructionsExecuted(executedInstructions + 1);
-                executedInstructions++;
-            } else {
-                break; // Exit if process is finished
             }
+
+            std::cout << "CPU " << cpuIndex << " processed " << currentProcess.getName() << " for " << cycles << " instructions.\n";
+
+            if (currentProcess.getInstructionsExecuted() < currentProcess.getInstructionCount()) {
+                std::lock_guard<std::mutex> lock(queueMutex);
+                processQueue.push(currentProcess);
+            } else {
+                finishedProcesses.push_back(currentProcess.getName());
+            }
+
+            cpuStatus[cpuIndex] = "";
+            currentInstructions[cpuIndex] = 0;
+            totalInstructions[cpuIndex] = 0;
         }
-
-        std::cout << "CPU " << cpuIndex << " processed " << currentProcess.getName() 
-                  << " for " << executedInstructions << " instructions.\n";
-
-       
-        if (executedInstructions < instructions) {
-            currentProcess.setInstructionCount(instructions - executedInstructions);
-            processQueue.push(currentProcess); 
-        } else {
-            finishedProcesses.push_back(currentProcess.getName()); 
-        }
-
-        // Reset CPU status
-        cpuStatus[cpuIndex] = "";
-        currentInstructions[cpuIndex] = 0;
-        totalInstructions[cpuIndex] = 0;
     }
-}
-
 }
 
 void Scheduler::monitorStatus() {

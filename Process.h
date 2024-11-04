@@ -22,7 +22,7 @@ public:
 private:
     std::string processName;
     int instructionCount;
-    int instructionsExecuted;
+    int instructionsExecuted = 0;
     std::string name;
     int burstTime;
     int coreAssigned;
