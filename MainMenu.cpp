@@ -99,8 +99,8 @@ void MainMenu::processCommand(const std::string &command) {
             std::cout << "Scheduler not initialized.\n";
         }
     } else if (command == "report-util") {
-        ReportCommand reportCommand;
-        reportCommand.runReportUtil();
+        // ReportCommand reportCommand;
+        // reportCommand.runReportUtil();
     } else if (command == "clear") {
         clearScreen();
         displayMainMenu();

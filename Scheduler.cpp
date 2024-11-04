@@ -61,44 +61,43 @@ void Scheduler::schedule() {
 }
 
 void Scheduler::processTasks(int cpuIndex) {
-    while (running) {
-        Process currentProcess("", 0, "", 0); {
-            std::unique_lock<std::mutex> lock(queueMutex);
-            condition.wait(lock, [this] { return !processQueue.empty() || !running; });
+    if (scheduler == "fcfs") {
+        while (running) {
+            Process currentProcess("", 0, "", 0); {
+                std::unique_lock<std::mutex> lock(queueMutex);
+                condition.wait(lock, [this] { return !processQueue.empty() || !running; });
 
-            if (!running && processQueue.empty()) {
-                return;
+                if (!running && processQueue.empty()) {
+                    return;
+                }
+
+                currentProcess = processQueue.front();
+                processQueue.pop();
             }
 
-            currentProcess = processQueue.front();
-            processQueue.pop();
-        }
+            cpuStatus[cpuIndex] = currentProcess.getName();
+            currentProcess.setCoreAssigned(cpuIndex);
+            int instructions = currentProcess.getInstructionCount();
+            totalInstructions[cpuIndex] = instructions;
+            currentInstructions[cpuIndex] = 0;
 
-        cpuStatus[cpuIndex] = currentProcess.getName();
-        currentProcess.setCoreAssigned(cpuIndex);
-        int instructions = currentProcess.getInstructionCount();
-        totalInstructions[cpuIndex] = instructions;
-        currentInstructions[cpuIndex] = 0;
 
-        if (scheduler == "fcfs") {
             // FCFS scheduling logic
             for (int i = 0; i < instructions; ++i) {
                 currentInstructions[cpuIndex] = i + 1;
                 currentProcess.setInstructionsExecuted(i + 1);
                 std::this_thread::sleep_for(std::chrono::milliseconds(globalDelay));
             }
-        } else if (scheduler == "rr") {
-            // RR scheduling logic
+
+            std::cout << "CPU " << cpuIndex << " processed " << currentProcess.getName() << " for " << instructions <<
+                    " instructions.\n";
+
+            cpuStatus[cpuIndex] = "";
+            currentInstructions[cpuIndex] = 0;
+            totalInstructions[cpuIndex] = 0;
+
+            finishedProcesses.push_back(currentProcess.getName());
         }
-
-        std::cout << "CPU " << cpuIndex << " processed " << currentProcess.getName() << " for " << instructions <<
-                " instructions.\n";
-
-        cpuStatus[cpuIndex] = "";
-        currentInstructions[cpuIndex] = 0;
-        totalInstructions[cpuIndex] = 0;
-
-        finishedProcesses.push_back(currentProcess.getName());
     }
 }
 
@@ -125,7 +124,7 @@ void Scheduler::startSchedulerTest() {
     if (!running) {
         running = true;
         allProcesses.clear();
-        // monitorThread = std::thread(&Scheduler::monitorStatus, this);
+        monitorThread = std::thread(&Scheduler::monitorStatus, this);
         schedule();
         schedulerThread = std::thread(&Scheduler::generateDummyProcesses, this);
         std::cout << "Scheduler test started.\n";
