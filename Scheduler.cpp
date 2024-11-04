@@ -177,20 +177,47 @@ void Scheduler::startSchedulerTest() {
 
 void Scheduler::stopSchedulerTest() {
     if (running) {
-        std::cout << "stopping " << std::endl;
+        std::cout << "Stopping scheduler...\n";
         running = false;
+        
+        // Join the scheduler and monitor threads if they are running
         if (schedulerThread.joinable()) {
-            std::cout << "Stopping process generator thread\n";
+            std::cout << "Stopping process generator thread...\n";
             schedulerThread.join();
         }
         if (monitorThread.joinable()) {
             monitorThread.join();
         }
+
+        // Display CPU utilization, cores used, and cores available
         std::cout << "Scheduler test stopped.\n";
+        std::cout << "Final CPU Utilization: " << getCpuUtilization() << "%\n";
+        std::cout << "Cores Used: " << getCoresUsed() << "\n";
+        std::cout << "Total Cores Available: " << getNumCores() << "\n";
+
+        // Display finished processes
+        std::cout << "Finished Processes: ";
+        for (const auto &process : finishedProcesses) {
+            std::cout << process << " ";
+        }
+        std::cout << "\n";
+
+        // Display processes still in progress
+        std::cout << "Processes in Progress: ";
+        std::queue<Process> tempQueue = processQueue;
+        while (!tempQueue.empty()) {
+            std::cout << tempQueue.front().getName() << " ";
+            tempQueue.pop();
+        }
+        std::cout << "\n";
+
+        // Display CPU status for each core
+        printCPUStatus();
     } else {
         std::cout << "Scheduler test is not running.\n";
     }
 }
+
 
 // void Scheduler::generateDummyProcesses() {
 //     int processCount = 1;
@@ -207,22 +234,20 @@ void Scheduler::stopSchedulerTest() {
 // }
 
 //for creating individual processes
-void Scheduler::generateProcess(const std::string& processName) {
-    static int processIDCounter = 1; 
-
+void Scheduler::generateProcess(const std::string& baseProcessName) {
+    static int processIDCounter = 1; // Ensure each process gets a unique ID
 
     int instructionCount = rand() % (maxIns - minIns + 1) + minIns;
-    Process newProcess(processName, instructionCount, processName, instructionCount);
-
-    int processID = processIDCounter++; 
+    std::string uniqueProcessName = baseProcessName + std::to_string(processIDCounter++); // Unique name for each process
+    Process newProcess(uniqueProcessName, instructionCount, uniqueProcessName, instructionCount);
 
     addProcess(newProcess);
     allProcesses.push_back(newProcess);
 
-    std::cout << "Generated process: " << processName
-              << " with internal ID: " << processID
-              << " and instructions: " << newProcess.getInstructionCount() << "\n";
+    std::cout << "Generated process: " << uniqueProcessName
+              << " with instructions: " << newProcess.getInstructionCount() << "\n";
 }
+
 
 void Scheduler::generateDummyProcesses() {
     while (running) {
