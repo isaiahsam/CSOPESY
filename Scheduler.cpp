@@ -180,8 +180,14 @@ void Scheduler::printProcessQueue() const {
     std::cout << std::endl;
 }
 
+
+
 void Scheduler::printCPUStatus() const {
+    int activeCores = getCoresUsed();
+    int totalCores = getNumCores();
+    double cpuUtil = static_cast<double>(activeCores) / totalCores * 100.0;
     std::cout << "CPU Status: " << std::endl;
+    std::cout << "CPU Utilization: " << cpuUtil << "%" << std::endl;
     for (size_t i = 0; i < cpuStatus.size(); ++i) {
         std::cout << "CPU " << i << ": " << (cpuStatus[i].empty() ? "Idle" : cpuStatus[i])
                   << " Instructions: " << currentInstructions[i] << "/" << totalInstructions[i] << std::endl;
