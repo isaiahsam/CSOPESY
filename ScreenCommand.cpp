@@ -13,8 +13,9 @@ bool ScreenCommand::screenExists(const std::string &screenName) const {
 
 void ScreenCommand::generateInstructionLines(const std::string &screenName, int minIns, int maxIns) {
     InstructionData data;
-    data.currentInstructionLines = minIns + (rand() % (maxIns - minIns + 1));
-    data.linesOfCode = minIns + (rand() % (maxIns - minIns + 1));
+
+    data.currentInstructionLines = minIns;
+    data.linesOfCode = maxIns;
     screenData[screenName] = data; // Store the data for this screen
 }
 
