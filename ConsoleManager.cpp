@@ -8,7 +8,7 @@ void ConsoleManager::startConsole()
     MainMenu mainMenu;
 
     mainMenu.displayMainMenu();
-
+    int cpuCycles = 0;
     // Get the input command for main menu
     std::string command;
     while (true)
@@ -17,5 +17,6 @@ void ConsoleManager::startConsole()
         std::getline(std::cin, command);
 
         mainMenu.processCommand(command);
+        cpuCycles++;
     }
 }
