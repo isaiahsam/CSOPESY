@@ -67,7 +67,6 @@ void ScreenCommand::handleScreenCommands() {
     }
 }
 
-
 void ScreenCommand::listScreens() {
     if (screens.empty()) {
         std::cout << "No active screens.\n";
@@ -77,7 +76,22 @@ void ScreenCommand::listScreens() {
             std::cout << "  - " << screen << "\n";
         }
     }
+
+    // Retrieve CPU utilization and core data from Scheduler
+    if (scheduler) {
+        int coresUsed = scheduler->getCoresUsed();
+        int totalCores = scheduler->getNumCores();
+        int coresAvailable = totalCores - coresUsed;
+        double cpuUtilization = scheduler->getCpuUtilization();
+
+        std::cout << "CPU Utilization: " << cpuUtilization << "%\n";
+        std::cout << "Cores used: " << coresUsed << "\n";
+        std::cout << "Cores available: " << coresAvailable << "\n";
+    } else {
+        std::cout << "Scheduler not initialized.\n";
+    }
 }
+
 
 void ScreenCommand::retrieveScreen(const std::string &screenName) {
     if (screenExists(screenName)) {

@@ -24,6 +24,30 @@ Scheduler::~Scheduler() {
     }
 }
 
+//for screen -ls
+int Scheduler::getCoresUsed() const {
+    int activeCores = 0;
+    for (const auto &status : cpuStatus) {
+        if (!status.empty()) activeCores++;
+    }
+    return activeCores;
+}
+
+int Scheduler::getNumCores() const {
+    return numCpu;
+}
+
+double Scheduler::getCpuUtilization() const {
+    int totalInstructions = 0, executedInstructions = 0;
+    for (size_t i = 0; i < currentInstructions.size(); ++i) {
+        totalInstructions += this->totalInstructions[i];
+        executedInstructions += this->currentInstructions[i];
+    }
+    return totalInstructions > 0 ? (100.0 * executedInstructions / totalInstructions) : 0.0;
+}
+
+
+
 void Scheduler::addProcess(const Process &process) {
     std::lock_guard<std::mutex> lock(queueMutex);
     processQueue.push(process);

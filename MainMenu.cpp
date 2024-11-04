@@ -81,7 +81,7 @@ void MainMenu::processCommand(const std::string &command) {
         std::cout << "Initialized using config.txt\n";
         scheduler->displayConfig();
     } else if (cmd == "screen") {
-        ScreenCommand screenCommand;
+        ScreenCommand screenCommand(scheduler);
         if (option == "-ls") {
             screenCommand.listScreens();
         } else {

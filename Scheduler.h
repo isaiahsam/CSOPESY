@@ -25,6 +25,13 @@ public:
     int getMinIns() const;
     int getMaxIns() const;
 
+    //just added this for screen-ls
+    public:
+    int getCoresUsed() const;
+    int getNumCores() const;
+    double getCpuUtilization() const;
+
+
 private:
     int numCpu;
     std::string scheduler;
