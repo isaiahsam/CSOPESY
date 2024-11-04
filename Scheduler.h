@@ -56,6 +56,7 @@ private:
     std::thread schedulerThread;
     std::thread monitorThread;
 
+    void generateProcess(const std::string &processName);
     void generateDummyProcesses();
     void processTasks(int cpuIndex);
     void monitorStatus();

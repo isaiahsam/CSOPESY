@@ -192,17 +192,43 @@ void Scheduler::stopSchedulerTest() {
     }
 }
 
+// void Scheduler::generateDummyProcesses() {
+//     int processCount = 1;
+//     while (running) {
+//         std::this_thread::sleep_for(std::chrono::milliseconds(batchProcessFreq));
+//         std::string processName = "p" + std::to_string(processCount++);
+//         int instructionCount = rand() % (maxIns - minIns + 1) + minIns;
+//         Process newProcess(processName, instructionCount, processName, instructionCount);
+//         addProcess(newProcess);
+//         allProcesses.push_back(newProcess);
+//         std::cout << "Generated process: " << processName << " with instructions:" << newProcess.getInstructionCount()
+//                 << "\n";
+//     }
+// }
+
+//for creating individual processes
+void Scheduler::generateProcess(const std::string& processName) {
+    static int processIDCounter = 1; 
+
+
+    int instructionCount = rand() % (maxIns - minIns + 1) + minIns;
+    Process newProcess(processName, instructionCount, processName, instructionCount);
+
+    int processID = processIDCounter++; 
+
+    addProcess(newProcess);
+    allProcesses.push_back(newProcess);
+
+    std::cout << "Generated process: " << processName
+              << " with internal ID: " << processID
+              << " and instructions: " << newProcess.getInstructionCount() << "\n";
+}
+
 void Scheduler::generateDummyProcesses() {
-    int processCount = 1;
     while (running) {
         std::this_thread::sleep_for(std::chrono::milliseconds(batchProcessFreq));
-        std::string processName = "p" + std::to_string(processCount++);
-        int instructionCount = rand() % (maxIns - minIns + 1) + minIns;
-        Process newProcess(processName, instructionCount, processName, instructionCount);
-        addProcess(newProcess);
-        allProcesses.push_back(newProcess);
-        std::cout << "Generated process: " << processName << " with instructions:" << newProcess.getInstructionCount()
-                << "\n";
+        std::string processName = "ScreenProcess"; 
+        generateProcess(processName); 
     }
 }
 
