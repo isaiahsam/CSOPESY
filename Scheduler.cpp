@@ -126,12 +126,13 @@ void Scheduler::processTasks(int cpuIndex) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(globalDelay));
             }
 
-            std::cout << "CPU " << cpuIndex << " processed " << currentProcess.getName() << " for " << cycles << " instructions.\n";
+
 
             if (currentProcess.getInstructionsExecuted() < currentProcess.getInstructionCount()) {
                 std::lock_guard<std::mutex> lock(queueMutex);
                 processQueue.push(currentProcess);
             } else {
+                std::cout << "CPU " << cpuIndex << " processed " << currentProcess.getName() << " for " << currentProcess.getInstructionsExecuted() << " instructions.\n";
                 finishedProcesses.push_back(currentProcess.getName());
             }
 
@@ -165,7 +166,7 @@ void Scheduler::startSchedulerTest() {
     if (!running) {
         running = true;
         allProcesses.clear();
-        monitorThread = std::thread(&Scheduler::monitorStatus, this);
+        // monitorThread = std::thread(&Scheduler::monitorStatus, this);
         schedule();
         schedulerThread = std::thread(&Scheduler::generateDummyProcesses, this);
         std::cout << "Scheduler test started.\n";
